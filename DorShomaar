@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دُرشمار - محاسبه‌گر قیمت طلا</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #DFEBF6;
+      color: #293533;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .calculator {
+      background-color: #E6E6E6;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: right;
+    }
+    h1 {
+      color: #44576D;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 12px;
+      color: #768A96;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 10px;
+      border: 1px solid #768A96;
+      border-radius: 4px;
+    }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #44576D;
+      color: #DFEBF6;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #293533;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #AAC7D8;
+      border-radius: 4px;
+      font-size: 18px;
+      color: #293533;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>محاسبه‌گر دُرشمار</h1>
+    
+    <label>قیمت روزانه طلا (تومان):</label>
+    <input type="radio" id="manualPrice" name="priceOption" checked>
+    <label for="manualPrice" style="display:inline; font-size: 12px; color: #768A96;">دستی</label>
+    <input type="radio" id="autoPrice" name="priceOption">
+    <label for="autoPrice" style="display:inline; font-size: 12px; color: #768A96;">اتوماتیک</label>
+    <input type="number" id="goldPrice" placeholder="مثال: 1000000">
+    
+    <label for="goldWeight">وزن طلا (گرم)</label>
+    <input type="number" id="goldWeight" placeholder="مقدار وزن به گرم">
+    
+    <label for="profitPercentage">درصد سود</label>
+    <input type="number" id="profitPercentage" placeholder="درصد سود به صورت عددی">
+    
+    <label for="wagePercentage">درصد اجرت</label>
+    <input type="number" id="wagePercentage" placeholder="درصد اجرت به صورت عددی">
+    
+    <label for="tax">مالیات (به درصد)</label>
+    <input type="number" id="tax" placeholder="مالیات به صورت درصدی">
+    
+    <div class="checkbox">
+      <input type="checkbox" id="includeC">
+      <label for="includeC">افزودن قیمت افزونه (برای محصولات ترکیبی)</label>
+    </div>
+    
+    <div id="cInputs" style="display: none;">
+      <label for="addonPrice">قیمت افزونه (تومان)</label>
+      <input type="number" id="addonPrice" placeholder="قیمت افزونه به تومان">
+      
+      <label for="addonProfit">درصد سود افزونه</label>
+      <input type="number" id="addonProfit" placeholder="درصد سود افزونه به صورت عددی">
+    </div>
+    
+    <button onclick="calculate()">محاسبه قیمت محصول</button>
+    
+    <div id="result" class="result" style="display: none;"></div>
+  </div>
+
+  <script>
+    document.getElementById("includeC").addEventListener("change", function() {
+      document.getElementById("cInputs").style.display = this.checked ? "block" : "none";
+    });
+
+    document.getElementById("autoPrice").addEventListener("change", function() {
+      if (this.checked) {
+        fetchGoldPrice();
+      }
+    });
+
+    function fetchGoldPrice() {
+      // اینجا باید درخواست به API سایت TGJU یا یک سرویس دیگر اضافه شود
+      // به دلیل محدودیت‌ها، نمی‌توان مستقیم داده را دریافت کرد
+      alert("امکان دسترسی به قیمت طلا به صورت آنلاین فراهم نشده است.");
+      document.getElementById("manualPrice").checked = true;
+    }
+    
+    function calculate() {
+      const goldPrice = parseFloat(document.getElementById("goldPrice").value) || 0;
+      const goldWeight = parseFloat(document.getElementById("goldWeight").value) || 0;
+      const profitPercentage = parseFloat(document.getElementById("profitPercentage").value) || 0;
+      const wagePercentage = parseFloat(document.getElementById("wagePercentage").value) || 0;
+      const tax = parseFloat(document.getElementById("tax").value) || 0;
+      const includeC = document.getElementById("includeC").checked;
+      const addonPrice = includeC ? parseFloat(document.getElementById("addonPrice").value) || 0 : 0;
+      const addonProfit = includeC ? parseFloat(document.getElementById("addonProfit").value) || 0 : 0;
+
+      const A = (goldPrice * goldWeight) + (profitPercentage / 100 * goldPrice * goldWeight) + (wagePercentage / 100 * goldPrice * goldWeight) + (tax / 100 * goldPrice * goldWeight);
+      const B = (goldPrice * goldWeight) * (tax / 100);
+      const C = includeC ? (addonPrice * addonProfit / 100) : 0;
+
+      const productPrice = A - B + C;
+
+      document.getElementById("result").innerText = `قیمت محصول: ${productPrice.toFixed(2)} تومان`;
+      document.getElementById("result").style.display = "block";
+    }
+  </script>
+</body>
+</html>
